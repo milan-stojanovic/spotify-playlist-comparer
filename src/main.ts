@@ -1,6 +1,21 @@
+// src/app/main.ts
 import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
-import { AppComponent } from './app/app.component';
+import { importProvidersFrom } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { routes } from "./app/routes";
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AppComponent } from "./app/presentation/components/app.component";
+import { PLAYLIST_REPOSITORY } from "./app/domain/repositories/playlist.repository";
+import { SpotifyPlaylistRepository } from "./app/infrastructure/repositories/spotify-playlist.repository";
 
-bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => console.error(err));
+bootstrapApplication(AppComponent, {
+  providers: [
+    importProvidersFrom(
+      BrowserModule,
+      BrowserAnimationsModule,
+      RouterModule.forRoot(routes)
+    ),
+    { provide: PLAYLIST_REPOSITORY, useClass: SpotifyPlaylistRepository },
+  ],
+}).catch((err: any) => console.error(err));
