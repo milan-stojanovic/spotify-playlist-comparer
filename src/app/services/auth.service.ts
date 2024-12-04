@@ -1,6 +1,7 @@
 // src/app/services/auth.service.ts
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
 	providedIn: "root",
@@ -9,7 +10,10 @@ export class AuthService {
 	private clientId = "a5574594d76d4db88b8a6ac03eb41edf"; // Replace with your Client ID
 	private redirectUri = "http://localhost:4200/callback";
 
-	constructor(private router: Router) {}
+	private loggedInSubject = new BehaviorSubject<boolean>(this.isLoggedIn());
+	loggedIn$ = this.loggedInSubject.asObservable();
+
+	constructor(private router: Router) { }
 
 	login() {
 		const scopes = [
@@ -35,12 +39,14 @@ export class AuthService {
 		const accessToken = hashParams.get("access_token");
 		if (accessToken) {
 			localStorage.setItem("spotify_access_token", accessToken);
+			this.loggedInSubject.next(true); // Emit new login status
 			this.router.navigate(["/"]);
 		}
 	}
 
 	logout() {
 		localStorage.removeItem("spotify_access_token");
+		this.loggedInSubject.next(false); // Emit new login status
 		this.router.navigate(["/"]);
 	}
 

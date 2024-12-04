@@ -4,7 +4,7 @@ import { AuthService } from "../../services/auth.service";
 import { RouterOutlet } from "@angular/router";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatButtonModule } from "@angular/material/button";
-import { NgIf } from "@angular/common";
+import { AsyncPipe, NgIf } from "@angular/common";
 
 @Component({
 	selector: "app-root",
@@ -12,20 +12,14 @@ import { NgIf } from "@angular/common";
 		<mat-toolbar color="primary">
 			<span>Spotify Playlist Comparer</span>
 			<span class="spacer"></span>
-			<button
-				mat-button
-				*ngIf="!authService.isLoggedIn()"
-				(click)="authService.login()"
-			>
-				Login with Spotify
-			</button>
-			<button
-				mat-button
-				*ngIf="authService.isLoggedIn()"
-				(click)="authService.logout()"
-			>
-				Logout
-			</button>
+			<ng-container *ngIf="authService.loggedIn$ | async as isLoggedIn">
+				<button mat-button *ngIf="!isLoggedIn" (click)="authService.login()">
+					Login with Spotify
+				</button>
+				<button mat-button *ngIf="isLoggedIn" (click)="authService.logout()">
+					Logout
+				</button>
+			</ng-container>
 		</mat-toolbar>
 		<router-outlet></router-outlet>
 	`,
@@ -36,8 +30,8 @@ import { NgIf } from "@angular/common";
 			}
 		`,
 	],
-	imports: [RouterOutlet, MatToolbarModule, MatButtonModule, NgIf],
+	imports: [RouterOutlet, MatToolbarModule, MatButtonModule, NgIf, AsyncPipe],
 })
 export class AppComponent {
-	constructor(public authService: AuthService) {}
+	constructor(public authService: AuthService) { }
 }

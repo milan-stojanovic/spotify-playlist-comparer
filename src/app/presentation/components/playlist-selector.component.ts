@@ -1,5 +1,5 @@
 // src/app/presentation/components/playlist-selector.component.ts
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { PlaylistService } from "../../application/playlist.service";
 import { Playlist } from "../../domain/models/playlist";
 import { Track } from "../../domain/models/track";
@@ -12,85 +12,12 @@ import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
 import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: "app-playlist-selector",
-	template: `
-		<div
-			*ngIf="playlists.length > 0; else loadingTemplate"
-			class="container"
-		>
-			<mat-card>
-				<h2>Select Playlists to Compare</h2>
-				<div class="selection">
-					<mat-form-field appearance="fill">
-						<mat-label>Playlist 1</mat-label>
-						<mat-select [(ngModel)]="selectedPlaylist1Id">
-							<mat-option
-								*ngFor="let playlist of playlists"
-								[value]="playlist.id"
-							>
-								<span *ngIf="playlist.id === 'liked_songs'">
-									<mat-icon>favorite</mat-icon>
-									{{ playlist.name }}
-								</span>
-								<span *ngIf="playlist.id !== 'liked_songs'">
-									{{ playlist.name }}
-								</span>
-							</mat-option>
-						</mat-select>
-					</mat-form-field>
-
-					<mat-form-field appearance="fill">
-						<mat-label>Playlist 2</mat-label>
-						<mat-select [(ngModel)]="selectedPlaylist2Id">
-							<mat-option
-								*ngFor="let playlist of playlists"
-								[value]="playlist.id"
-							>
-								<span *ngIf="playlist.id === 'liked_songs'">
-									<mat-icon>favorite</mat-icon>
-									{{ playlist.name }}
-								</span>
-								<span *ngIf="playlist.id !== 'liked_songs'">
-									{{ playlist.name }}
-								</span>
-							</mat-option>
-						</mat-select>
-					</mat-form-field>
-				</div>
-				<button
-					mat-raised-button
-					color="accent"
-					(click)="comparePlaylists()"
-				>
-					Compare Playlists
-				</button>
-			</mat-card>
-		</div>
-
-		<ng-template #loadingTemplate>
-			<mat-spinner></mat-spinner>
-		</ng-template>
-
-		<div *ngIf="missingTracks.length > 0" class="container">
-			<mat-card>
-				<h3>
-					Tracks in "{{ getPlaylistName(selectedPlaylist1Id) }}"
-					missing from "{{ getPlaylistName(selectedPlaylist2Id) }}":
-				</h3>
-				<mat-list>
-					<mat-list-item *ngFor="let track of missingTracks">
-						<mat-icon matListIcon>music_note</mat-icon>
-						<h4 matLine>{{ track.name }}</h4>
-						<p matLine>
-							<small>{{ track.artists.join(", ") }}</small>
-						</p>
-					</mat-list-item>
-				</mat-list>
-			</mat-card>
-		</div>
-	`,
+	templateUrl: "./playlist-selector.component.html",
 	styles: [
 		`
 			.container {
@@ -126,31 +53,47 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 		MatProgressSpinnerModule,
 	],
 })
-export class PlaylistSelectorComponent implements OnInit {
+export class PlaylistSelectorComponent implements OnInit, OnDestroy {
 	playlists: Playlist[] = [];
 	selectedPlaylist1Id: string | null = null;
 	selectedPlaylist2Id: string | null = null;
 	missingTracks: Track[] = [];
 	loading: boolean = false;
 
+	private loginSubscription!: Subscription;
+
 	constructor(
+		public authService: AuthService,
 		private playlistService: PlaylistService,
 		private snackBar: MatSnackBar
-	) {}
+	) { }
 
 	async ngOnInit() {
+		if (this.authService.isLoggedIn()) {
+			this.fetchPlaylists();
+		}
+
+		this.loginSubscription = this.authService.loggedIn$.subscribe((loggedIn) => {
+			if (loggedIn) {
+				this.fetchPlaylists();
+			}
+		});
+	}
+
+	private async fetchPlaylists() {
 		this.loading = true;
 		try {
 			this.playlists = await this.playlistService.getUserPlaylists();
 		} catch (error) {
-			console.error("Error fetching playlists:", error);
-			this.snackBar.open("Error fetching playlists.", "Close", {
+			console.error('Error fetching playlists:', error);
+			this.snackBar.open('Error fetching playlists.', 'Close', {
 				duration: 3000,
 			});
 		} finally {
 			this.loading = false;
 		}
 	}
+
 
 	async comparePlaylists() {
 		if (!this.selectedPlaylist1Id || !this.selectedPlaylist2Id) {
@@ -183,5 +126,11 @@ export class PlaylistSelectorComponent implements OnInit {
 	getPlaylistName(playlistId: string | null): string {
 		const playlist = this.playlists.find(p => p.id === playlistId);
 		return playlist ? playlist.name : "";
+	}
+
+	ngOnDestroy() {
+		if (this.loginSubscription) {
+			this.loginSubscription.unsubscribe();
+		}
 	}
 }

@@ -1,0 +1,73 @@
+<div *ngIf="authService.isLoggedIn(); else notLoggedInTemplate">
+	<div *ngIf="playlists.length > 0; else loadingTemplate" class="container">
+		<mat-card>
+			<h2>Select Playlists to Compare</h2>
+			<div class="selection">
+				<mat-form-field appearance="fill">
+					<mat-label>Playlist 1</mat-label>
+					<mat-select [(ngModel)]="selectedPlaylist1Id">
+						<mat-option *ngFor="let playlist of playlists" [value]="playlist.id">
+							<span *ngIf="playlist.id === 'liked_songs'">
+								<mat-icon>favorite</mat-icon>
+								{{ playlist.name }}
+							</span>
+							<span *ngIf="playlist.id !== 'liked_songs'">
+								{{ playlist.name }}
+							</span>
+						</mat-option>
+					</mat-select>
+				</mat-form-field>
+
+				<mat-form-field appearance="fill">
+					<mat-label>Playlist 2</mat-label>
+					<mat-select [(ngModel)]="selectedPlaylist2Id">
+						<mat-option *ngFor="let playlist of playlists" [value]="playlist.id">
+							<span *ngIf="playlist.id === 'liked_songs'">
+								<mat-icon>favorite</mat-icon>
+								{{ playlist.name }}
+							</span>
+							<span *ngIf="playlist.id !== 'liked_songs'">
+								{{ playlist.name }}
+							</span>
+						</mat-option>
+					</mat-select>
+				</mat-form-field>
+			</div>
+			<button mat-raised-button color="accent" (click)="comparePlaylists()">
+				Compare Playlists
+			</button>
+		</mat-card>
+	</div>
+
+	<ng-template #loadingTemplate>
+		<mat-spinner></mat-spinner>
+	</ng-template>
+
+	<div *ngIf="missingTracks.length > 0" class="container">
+		<mat-card>
+			<h3>
+				Tracks in "{{ getPlaylistName(selectedPlaylist1Id) }}"
+				missing from "{{ getPlaylistName(selectedPlaylist2Id) }}":
+			</h3>
+			<mat-list>
+				<mat-list-item *ngFor="let track of missingTracks">
+					<mat-icon matListIcon>music_note</mat-icon>
+					<h4 matLine>{{ track.name }}</h4>
+					<p matLine>
+						<small>{{ track.artists.join(", ") }}</small>
+					</p>
+				</mat-list-item>
+			</mat-list>
+		</mat-card>
+	</div>
+</div>
+<ng-template #notLoggedInTemplate>
+	<div class="container">
+		<mat-card>
+			<h2>Please log in to view and compare your playlists.</h2>
+			<button mat-raised-button color="primary" (click)="authService.login()">
+				Login with Spotify
+			</button>
+		</mat-card>
+	</div>
+</ng-template>
