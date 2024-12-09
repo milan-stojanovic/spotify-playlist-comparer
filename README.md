@@ -1,59 +1,105 @@
 # Spotify Playlist Comparer
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.2.
+Spotify Playlist Comparer is a web application that allows users to log in with their Spotify account, view their playlists (including Liked Songs), and compare two playlists to see which tracks are present in one but not the other.
 
-## Development server
+## Features
 
-To start a local development server, run:
+-   **Spotify OAuth Authentication**: Securely log in using your Spotify account.
+-   **Playlist & Liked Songs Retrieval**: Fetch all playlists and Liked Songs without 50-item limits (pagination implemented).
+-   **Playlist Comparison**: Compare two playlists to find tracks unique to one playlist.
+-   **User Session & Logout**: Sessions are stored on the backend; you can easily log out to terminate the session.
+-   **Responsive UI**: Built with Angular and Angular Material for a polished, responsive user interface.
+
+## Technology Stack
+
+-   **Backend**: NestJS (TypeScript), `express-session` for sessions, `axios` for Spotify API calls
+-   **Frontend**: Angular with standalone components, Angular Material for UI components
+-   **Spotify Web API**: Used for authentication (OAuth) and retrieving playlist/track data
+
+## Requirements
+
+-   Node.js (LTS recommended)
+-   npm
+-   Angular CLI (`npm install -g @angular/cli`)
+-   NestJS CLI (`npm install -g @nestjs/cli`)
+-   A Spotify Developer account and a registered Spotify app with a **Client ID**, **Client Secret**, and configured Redirect URI.
+
+## Getting Started
+
+### 1. Clone the Repository
 
 ```bash
+git clone https://github.com/milan-stojanovic/spotify-playlist-comparer.git
+cd spotify-playlist-comparer
+```
+
+### 2. Configure environment variables:
+
+In `spotify-playlist-comparer/backend`, create a `.env` file:
+
+```bash
+SPOTIFY_CLIENT_ID=<your_spotify_client_id>
+SPOTIFY_CLIENT_SECRET=<your_spotify_client_secret>
+SPOTIFY_REDIRECT_URI=http://localhost:3000/auth/callback
+APP_PORT=3000
+SESSION_SECRET=<some_secure_random_string>
+```
+
+Make sure the SPOTIFY_REDIRECT_URI matches what you’ve set in your Spotify Developer Dashboard.
+
+### 3. Install dependencies:
+
+Backend:
+
+```bash
+cd backend
+npm install
+```
+
+Frontend:
+
+```bash
+cd ../frontend
+npm install
+```
+
+## Running the Application
+
+### 1. Start the backend:
+
+```bash
+cd ../backend
+npm run start:dev
+```
+
+The backend runs on `http://localhost:3000`.
+
+### 2. Start the frontend:
+
+```bash
+cd ../frontend
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+The frontend runs on `http://localhost:4200`.
 
-## Code scaffolding
+## Using the Application
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+1. Open http://localhost:4200 in your browser.
+2. If you are not logged in, a login icon will appear in the toolbar. Click it to initiate the Spotify OAuth flow.
+3. After approving access on Spotify’s page, you will be redirected back to the frontend.
+4. Once logged in, select two playlists (including "Liked Songs" if desired) and click "Compare" to view the unique tracks.
+5. To log out, click the logout icon in the toolbar. This clears the session, requiring a new login to access playlists again.
 
-```bash
-ng generate component component-name
-```
+## Notes and Troubleshooting
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+-   Ensure cookies are enabled, as sessions depend on them.
+-   If you encounter a `401 Unauthorized` error, verify that:
+    -   You have successfully logged in.
+    -   CORS and `withCredentials` are correctly configured in the frontend.
+    -   The session is stored and retrieved properly by the backend.
+-   To change themes or adjust styling, review the `frontend/src/styles.scss` and Material theme imports.
 
-```bash
-ng generate --help
-```
+## Future Improvements
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+TBD

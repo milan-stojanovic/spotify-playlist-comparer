@@ -1,0 +1,15 @@
+<mat-toolbar color="primary">
+	<span class="app-title">Spotify Playlist Comparer</span>
+	<span class="spacer"></span>
+	<ng-container *ngIf="(loggedIn$ | async); else notLoggedIn">
+		<button mat-icon-button (click)="logout()" aria-label="Logout">
+			<mat-icon>logout</mat-icon>
+		</button>
+	</ng-container>
+	<ng-template #notLoggedIn>
+		<button mat-icon-button (click)="goToLogin()" aria-label="Login">
+			<mat-icon>login</mat-icon>
+		</button>
+	</ng-template>
+</mat-toolbar>
+<router-outlet></router-outlet>

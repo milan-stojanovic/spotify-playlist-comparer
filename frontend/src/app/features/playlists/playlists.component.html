@@ -1,0 +1,68 @@
+<div class="container">
+	<div class="loading" *ngIf="loading">
+		<mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+		<p>Loading your playlists...</p>
+	</div>
+
+	<ng-container *ngIf="(loggedIn$ | async); else notLoggedIn">
+		<mat-card class="selector-card" *ngIf="!loading">
+			<mat-card-title>Select Playlists to Compare</mat-card-title>
+			<mat-card-content>
+				<div class="playlist-selector">
+					<mat-form-field appearance="outline">
+						<mat-label>Playlist A</mat-label>
+						<mat-select [(ngModel)]="selectedPlaylistA">
+							<mat-option *ngFor="let p of playlists" [value]="p.id">
+								{{ p.name }}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field appearance="outline">
+						<mat-label>Playlist B</mat-label>
+						<mat-select [(ngModel)]="selectedPlaylistB">
+							<mat-option *ngFor="let p of playlists" [value]="p.id">
+								{{ p.name }}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+				</div>
+			</mat-card-content>
+			<mat-card-actions>
+				<button mat-raised-button color="primary" (click)="compare()" [disabled]="!canCompare || comparing">
+					Compare
+				</button>
+				<mat-progress-spinner *ngIf="comparing" diameter="24" mode="indeterminate"></mat-progress-spinner>
+			</mat-card-actions>
+		</mat-card>
+
+		<ng-container *ngIf="!comparing && !loading && differenceTracks">
+			<mat-card class="results-card" *ngIf="differenceTracks.length; else noDifference">
+				<mat-card-title>Tracks in A not in B:</mat-card-title>
+				<mat-card-content>
+					<ul>
+						<li *ngFor="let track of differenceTracks">{{ track.name }} - {{ track.artist }}</li>
+					</ul>
+				</mat-card-content>
+			</mat-card>
+
+			<ng-template #noDifference>
+				<mat-card class="no-difference-card">
+					<mat-card-title>No Difference Found</mat-card-title>
+					<mat-card-content>
+						<p>Both playlists contain the same tracks or you've not yet made a valid comparison.</p>
+					</mat-card-content>
+				</mat-card>
+			</ng-template>
+		</ng-container>
+	</ng-container>
+
+	<ng-template #notLoggedIn>
+		<mat-card class="error-card">
+			<mat-card-title>Not Logged In</mat-card-title>
+			<mat-card-content>
+				<p>Please use the toolbar above to login.</p>
+			</mat-card-content>
+		</mat-card>
+	</ng-template>
+</div>

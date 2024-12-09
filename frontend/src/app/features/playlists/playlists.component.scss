@@ -1,0 +1,44 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 1rem;
+	gap: 1rem;
+}
+
+.loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	margin-top: 2rem;
+}
+
+.playlist-selector {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	margin-top: 1rem;
+}
+
+.selector-card,
+.results-card,
+.no-difference-card,
+.error-card {
+	width: 100%;
+	max-width: 600px;
+}
+
+.results-card ul {
+	padding-left: 20px;
+	list-style-type: disc;
+}
+
+.error-card p,
+.no-difference-card p {
+	margin: 0;
+}
+
+.mat-card-title {
+	margin-bottom: 0.5rem;
+}
